@@ -37,7 +37,7 @@
 #define MIN(x, y) ((x) < (y)? (x) : (y))
 #define MAX(x, y) ((x) > (y)? (x) : (y))
 #define CTL(x) ((x) & 0x1f)
-#define VERSION "1.0.0-arjunafork"
+#define VERSION "1.0.1-arjunafork"
 #define USAGE "usage: mtm [-T NAME] [-t NAME] [-c KEY] [-v]\n"
 
 /*** DATA TYPES */
@@ -1118,6 +1118,11 @@ handlechar(int r, int k) /* Handle a single input character. */
     DO(true,  SCROLLDOWN,          scrollforward(n))
     DO(true,  RECENTER,            scrollbottom(n))
     DO(true,  KEY(commandkey),     SENDN(n, cmdstr, 1));
+    /* Forward unrecognized Ctrl+b commands to child (for tmux) */
+    if (cmd){
+        scrollbottom(n);
+        SENDN(n, cmdstr, 1);  /* send Ctrl+b */
+    }
     char c[MB_LEN_MAX + 1] = {0};
     if (wctomb(c, k) > 0){
         scrollbottom(n);
