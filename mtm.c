@@ -766,7 +766,7 @@ getterm(void)
 }
 
 static NODE *
-newview(NODE *p, int y, int x, int h, int w) /* Open a new view. */
+newview_cmd(NODE *p, int y, int x, int h, int w, const char *cmd) /* Open a new view with optional command. */
 {
     struct winsize ws = {.ws_row = h, .ws_col = w};
     NODE *n = newnode(VIEW, p, y, x, h, w);
@@ -800,7 +800,10 @@ newview(NODE *p, int y, int x, int h, int w) /* Open a new view. */
         setenv("MTM", buf, 1);
         setenv("TERM", getterm(), 1);
         signal(SIGCHLD, SIG_DFL);
-        execl(getshell(), getshell(), NULL);
+        if (cmd)
+            execl(getshell(), getshell(), "-c", cmd, NULL);
+        else
+            execl(getshell(), getshell(), NULL);
         return NULL;
     }
 
@@ -808,6 +811,12 @@ newview(NODE *p, int y, int x, int h, int w) /* Open a new view. */
     fcntl(n->pt, F_SETFL, O_NONBLOCK);
     nfds = n->pt > nfds? n->pt : nfds;
     return n;
+}
+
+static NODE *
+newview(NODE *p, int y, int x, int h, int w) /* Open a new view. */
+{
+    return newview_cmd(p, y, x, h, w, NULL);
 }
 
 static NODE *
@@ -1164,10 +1173,43 @@ main(int argc, char **argv)
     use_default_colors();
     start_pairs();
 
-    root = newview(NULL, 0, 0, LINES, COLS);
+    /* Create dual-pane layout with tmux sessions (3 windows each) */
+    int half_w = COLS / 2;
+
+    /* Commands to create tmux sessions with 3 windows, default-path set for new windows */
+    const char *cmd_core1 =
+        "cd ~/code/confirm/core_1 && "
+        "if tmux has-session -t core_1 2>/dev/null; then "
+        "  tmux attach -t core_1; "
+        "else "
+        "  tmux new-session -d -s core_1 && "
+        "  tmux new-window -t core_1 && "
+        "  tmux new-window -t core_1 && "
+        "  tmux select-window -t core_1:0 && "
+        "  tmux attach -t core_1; "
+        "fi";
+
+    const char *cmd_core2 =
+        "cd ~/code/confirm/core_2 && "
+        "if tmux has-session -t core_2 2>/dev/null; then "
+        "  tmux attach -t core_2; "
+        "else "
+        "  tmux new-session -d -s core_2 && "
+        "  tmux new-window -t core_2 && "
+        "  tmux new-window -t core_2 && "
+        "  tmux select-window -t core_2:0 && "
+        "  tmux attach -t core_2; "
+        "fi";
+
+    NODE *left = newview_cmd(NULL, 0, 0, LINES, half_w, cmd_core1);
+    NODE *right = newview_cmd(NULL, 0, half_w + 1, LINES, COLS - half_w - 1, cmd_core2);
+    if (!left || !right)
+        quit(EXIT_FAILURE, "could not open views");
+
+    root = newcontainer(HORIZONTAL, NULL, 0, 0, LINES, COLS, left, right);
     if (!root)
-        quit(EXIT_FAILURE, "could not open root window");
-    focus(root);
+        quit(EXIT_FAILURE, "could not create container");
+    focus(left);
     draw(root);
     run();
 

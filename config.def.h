@@ -47,35 +47,35 @@
 /* The default command prefix key, when modified by cntrl.
  * This can be changed at runtime using the '-c' flag.
  */
-#define COMMAND_KEY 'g'
+#define COMMAND_KEY 'b'
 
-/* The change focus keys. */
-#define MOVE_UP         CODE(KEY_UP)
-#define MOVE_DOWN       CODE(KEY_DOWN)
+/* The change focus keys - ONLY left/right enabled to minimize conflicts with tmux */
+#define MOVE_UP         0  /* disabled */
+#define MOVE_DOWN       0  /* disabled */
 #define MOVE_RIGHT      CODE(KEY_RIGHT)
 #define MOVE_LEFT       CODE(KEY_LEFT)
-#define MOVE_OTHER      KEY(L'o')
+#define MOVE_OTHER      0  /* disabled */
 
-/* The split terminal keys. */
-#define HSPLIT KEY(L'h')
-#define VSPLIT KEY(L'v')
+/* The split terminal keys - disabled (layout is fixed) */
+#define HSPLIT 0  /* disabled */
+#define VSPLIT 0  /* disabled */
 
-/* The delete terminal key. */
-#define DELETE_NODE KEY(L'w')
+/* The delete terminal key - disabled */
+#define DELETE_NODE 0  /* disabled */
 
-/* does nothing, specifically */
-#define BAILOUT KEY(L'c')
+/* does nothing, specifically - disabled */
+#define BAILOUT 0  /* disabled */
 
-/* clears the scrollback and everything */
-#define NUKE KEY(L'k')
+/* clears the scrollback and everything - disabled */
+#define NUKE 0  /* disabled */
 
-/* The force redraw key. */
-#define REDRAW KEY(L'l')
+/* The force redraw key - disabled */
+#define REDRAW 0  /* disabled */
 
-/* The scrollback keys. */
-#define SCROLLUP CODE(KEY_PPAGE)
-#define SCROLLDOWN CODE(KEY_NPAGE)
-#define RECENTER CODE(KEY_END)
+/* The scrollback keys - disabled (use tmux scrollback instead) */
+#define SCROLLUP 0    /* disabled */
+#define SCROLLDOWN 0  /* disabled */
+#define RECENTER 0    /* disabled */
 
 /* The path for the wide-character curses library. */
 #ifndef NCURSESW_INCLUDE_H
