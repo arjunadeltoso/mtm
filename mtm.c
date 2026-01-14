@@ -37,7 +37,8 @@
 #define MIN(x, y) ((x) < (y)? (x) : (y))
 #define MAX(x, y) ((x) > (y)? (x) : (y))
 #define CTL(x) ((x) & 0x1f)
-#define USAGE "usage: mtm [-T NAME] [-t NAME] [-c KEY]\n"
+#define VERSION "1.0.0-arjunafork"
+#define USAGE "usage: mtm [-T NAME] [-t NAME] [-c KEY] [-v]\n"
 
 /*** DATA TYPES */
 typedef enum{
@@ -1155,10 +1156,11 @@ main(int argc, char **argv)
     signal(SIGCHLD, SIG_IGN); /* automatically reap children */
 
     int c = 0;
-    while ((c = getopt(argc, argv, "c:T:t:")) != -1) switch (c){
+    while ((c = getopt(argc, argv, "c:T:t:v")) != -1) switch (c){
         case 'c': commandkey = CTL(optarg[0]);      break;
         case 'T': setenv("TERM", optarg, 1);        break;
         case 't': term = optarg;                    break;
+        case 'v': printf("mtm %s\n", VERSION);      return 0;
         default:  quit(EXIT_FAILURE, USAGE);        break;
     }
 
