@@ -37,7 +37,7 @@
 #define MIN(x, y) ((x) < (y)? (x) : (y))
 #define MAX(x, y) ((x) > (y)? (x) : (y))
 #define CTL(x) ((x) & 0x1f)
-#define VERSION "1.0.1-arjunafork"
+#define VERSION "1.0.2-arjunafork"
 #define USAGE "usage: mtm [-T NAME] [-t NAME] [-c KEY] [-v]\n"
 
 /*** DATA TYPES */
@@ -1083,6 +1083,10 @@ handlechar(int r, int k) /* Handle a single input character. */
     DO(false, CODE(KEY_DOWN),      sendarrow(n, "B"); SB);
     DO(false, CODE(KEY_RIGHT),     sendarrow(n, "C"); SB);
     DO(false, CODE(KEY_LEFT),      sendarrow(n, "D"); SB);
+    DO(false, CODE(KEY_SR),        SEND(n, "\033[1;5A"); SB);  /* Ctrl+Up */
+    DO(false, CODE(KEY_SF),        SEND(n, "\033[1;5B"); SB);  /* Ctrl+Down */
+    DO(false, CODE(KEY_SRIGHT),    SEND(n, "\033[1;5C"); SB);  /* Ctrl+Right */
+    DO(false, CODE(KEY_SLEFT),     SEND(n, "\033[1;5D"); SB);  /* Ctrl+Left */
     DO(false, CODE(KEY_HOME),      SEND(n, "\033[1~"); SB)
     DO(false, CODE(KEY_END),       SEND(n, "\033[4~"); SB)
     DO(false, CODE(KEY_PPAGE),     SEND(n, "\033[5~"); SB)
@@ -1179,6 +1183,12 @@ main(int argc, char **argv)
     start_color();
     use_default_colors();
     start_pairs();
+
+    /* Define modified arrow key escape sequences for ncurses */
+    define_key("\033[1;5A", KEY_SR);     /* Ctrl+Up */
+    define_key("\033[1;5B", KEY_SF);     /* Ctrl+Down */
+    define_key("\033[1;5C", KEY_SRIGHT); /* Ctrl+Right */
+    define_key("\033[1;5D", KEY_SLEFT);  /* Ctrl+Left */
 
     /* Create dual-pane layout with tmux sessions (3 windows each) */
     int half_w = COLS / 2;
